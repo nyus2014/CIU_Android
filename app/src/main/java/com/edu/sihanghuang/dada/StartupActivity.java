@@ -46,6 +46,7 @@ public class StartupActivity extends FragmentActivity
         mTitle = getTitle();
 
         mViewPager = (ViewPager)findViewById(R.id.pager);
+        mViewPager.setAdapter(new TabAdapter(getSupportFragmentManager()));
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener(){
             @Override
             public void onPageSelected(int position) {
@@ -154,16 +155,23 @@ public class StartupActivity extends FragmentActivity
         return super.onOptionsItemSelected(item);
     }
 
+    public void onLifestyleFragmentInteraction(String id) {
+        // Must implement this method for LifestyleFragment
+    }
+
     public static class TabAdapter extends FragmentPagerAdapter {
 
-        private final int pageCount = 4;
+        private final int pageCount = 1;
         public TabAdapter (FragmentManager fm){
             super(fm);
         }
 
         @Override
         public Fragment getItem(int position){
-            return null;
+
+            LifestyleFragment lifestyle = LifestyleFragment.newInstance("a","b");
+
+             return lifestyle;
         }
 
         @Override
