@@ -16,7 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class StartupActivity extends FragmentActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LifestyleFragment.OnFragmentInteractionListener {
 
     private final int SideMenuRowAbout = 1;
     private final int SideMenuRowRate = 2;
@@ -155,6 +155,7 @@ public class StartupActivity extends FragmentActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
     public void onLifestyleFragmentInteraction(String id) {
         // Must implement this method for LifestyleFragment
     }
@@ -162,22 +163,24 @@ public class StartupActivity extends FragmentActivity
     public static class TabAdapter extends FragmentPagerAdapter {
 
         private final int pageCount = 1;
-        public TabAdapter (FragmentManager fm){
+
+        public TabAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
-        public Fragment getItem(int position){
+        public Fragment getItem(int position) {
 
-            LifestyleFragment lifestyle = LifestyleFragment.newInstance("a","b");
+            LifestyleFragment lifestyle = LifestyleFragment.newInstance("a", "b");
 
-             return lifestyle;
+            return lifestyle;
         }
 
         @Override
-        public int getCount(){
+        public int getCount() {
 
             return pageCount;
         }
+
     }
 }
