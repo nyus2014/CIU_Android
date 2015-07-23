@@ -15,6 +15,9 @@ import android.widget.TextView;
 
 import com.edu.sihanghuang.dada.dummy.DummyContent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A fragment representing a list of Items.
  * <p/>
@@ -74,9 +77,14 @@ public class LifestyleFragment extends Fragment implements AbsListView.OnItemCli
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        List<String> list = new ArrayList<String>();
+        list.add("Restaurant");
+        list.add("Supermarket");
+        list.add("Job & Trade");
+
         // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+        mAdapter = new ArrayAdapter<String>(getActivity(),
+                R.layout.lifestyle_category_list_item_layout, R.id.lifestyle_category_list_item, list);
     }
 
     @Override
