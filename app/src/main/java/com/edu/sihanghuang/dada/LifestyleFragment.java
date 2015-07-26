@@ -3,6 +3,7 @@ package com.edu.sihanghuang.dada;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,7 +55,7 @@ public class LifestyleFragment extends Fragment implements AbsListView.OnItemCli
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private ArrayAdapter<String> mAdapter;
 
     // TODO: Rename and change types of parameters
     public static LifestyleFragment newInstance(String param1, String param2) {
@@ -98,6 +99,13 @@ public class LifestyleFragment extends Fragment implements AbsListView.OnItemCli
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
 
+                if (e != null) {
+                    Log.e("*********************","Failed to obtain category objects");
+                } else {
+                    for (ParseObject obj : objects) {
+                        mAdapter.add((String)obj.get(APIConstants.NameKey));
+                    }
+                }
             }
         });
     }

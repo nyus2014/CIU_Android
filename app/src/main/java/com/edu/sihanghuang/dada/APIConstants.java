@@ -11,4 +11,5 @@ public class APIConstants {
 
     // Property Name
     public static final String ImportanceKey = "importance";
+    public static final String NameKey = "name";
 }
