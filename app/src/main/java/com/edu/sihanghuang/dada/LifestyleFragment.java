@@ -56,6 +56,7 @@ public class LifestyleFragment extends Fragment implements AbsListView.OnItemCli
      * Views.
      */
     private ArrayAdapter<String> mAdapter;
+    private List<String> dataSource= new ArrayList<String>();
 
     // TODO: Rename and change types of parameters
     public static LifestyleFragment newInstance(String param1, String param2) {
@@ -83,11 +84,6 @@ public class LifestyleFragment extends Fragment implements AbsListView.OnItemCli
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        List<String> list = new ArrayList<String>();
-        list.add("Restaurant");
-        list.add("Supermarket");
-        list.add("Job & Trade");
-
         // TODO: Change Adapter to display your content
         mAdapter = new ArrayAdapter<String>(getActivity(),
                 R.layout.lifestyle_category_list_item_layout, R.id.lifestyle_category_list_item);
@@ -103,7 +99,9 @@ public class LifestyleFragment extends Fragment implements AbsListView.OnItemCli
                     Log.e("*********************","Failed to obtain category objects");
                 } else {
                     for (ParseObject obj : objects) {
-                        mAdapter.add((String)obj.get(APIConstants.NameKey));
+                        String name = (String)obj.get(APIConstants.NameKey);
+                        mAdapter.add(name);
+                        dataSource.add(name);
                     }
                 }
             }
@@ -147,7 +145,7 @@ public class LifestyleFragment extends Fragment implements AbsListView.OnItemCli
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onLifestyleFragmentInteraction(DummyContent.ITEMS.get(position).id);
+            mListener.onLifestyleFragmentInteraction(dataSource.get(position));
         }
     }
 

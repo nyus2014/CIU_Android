@@ -36,6 +36,8 @@ public class StartupActivity extends FragmentActivity
      */
     private CharSequence mTitle;
 
+    private final String[] tabNames = {"Lifestyle", "Events", "Surprise"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,10 +88,10 @@ public class StartupActivity extends FragmentActivity
         };
 
         // Add 3 tabs, specifying the tab's text and TabListener
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < tabNames.length; i++) {
             actionBar.addTab(
                     actionBar.newTab()
-                            .setText("Tab " + (i + 1))
+                            .setText(tabNames[i])
                             .setTabListener(tabListener));
         }
     }
