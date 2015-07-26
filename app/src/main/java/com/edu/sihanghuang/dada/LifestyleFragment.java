@@ -12,12 +12,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-
 import com.edu.sihanghuang.dada.dummy.DummyContent;
+import com.parse.GetCallback;
+import com.parse.Parse;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
 /**
  * A fragment representing a list of Items.
  * <p/>
@@ -84,7 +89,17 @@ public class LifestyleFragment extends Fragment implements AbsListView.OnItemCli
 
         // TODO: Change Adapter to display your content
         mAdapter = new ArrayAdapter<String>(getActivity(),
-                R.layout.lifestyle_category_list_item_layout, R.id.lifestyle_category_list_item, list);
+                R.layout.lifestyle_category_list_item_layout, R.id.lifestyle_category_list_item);
+
+        // Fetch categories
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(APIConstants.LifestyleCategoryParseClassName);
+        query.orderByDescending(APIConstants.ImportanceKey);
+        query.findInBackground(new FindCallback<ParseObject>(){
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+
+            }
+        });
     }
 
     @Override
