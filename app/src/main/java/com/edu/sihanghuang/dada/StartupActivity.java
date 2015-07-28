@@ -9,14 +9,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 public class StartupActivity extends FragmentActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LifestyleFragment.OnFragmentInteractionListener {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LifestyleFragment.OnFragmentInteractionListener, EventFragment.OnFragmentInteractionListener {
 
     private final int SideMenuRowAbout = 1;
     private final int SideMenuRowRate = 2;
@@ -163,9 +160,14 @@ public class StartupActivity extends FragmentActivity
         // Must implement this method for LifestyleFragment
     }
 
+    @Override
+    public void onEventFragmentInteraction(String id) {
+        // Must implement this method for EventFragment
+    }
+
     public static class TabAdapter extends FragmentPagerAdapter {
 
-        private final int pageCount = 1;
+        private final int pageCount = 2;
 
         public TabAdapter(FragmentManager fm) {
             super(fm);
@@ -174,9 +176,15 @@ public class StartupActivity extends FragmentActivity
         @Override
         public Fragment getItem(int position) {
 
-            LifestyleFragment lifestyle = LifestyleFragment.newInstance("a", "b");
+            if (position == 0) {
+                LifestyleFragment lifestyle = LifestyleFragment.newInstance("a", "b");
 
-            return lifestyle;
+                return lifestyle;
+            } else {
+                EventFragment eventFragment = EventFragment.newInstance("a", "b");
+
+                return eventFragment;
+            }
         }
 
         @Override

@@ -2,26 +2,24 @@ package com.edu.sihanghuang.dada;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 import java.util.List;
 import android.content.Context;
 
 import com.edu.sihanghuang.dada.dummy.DummyContent;
 import com.parse.Parse;
 import com.parse.ParseObject;
-
-import java.util.ArrayList;
+import com.parse.ParseQuery;
 
 /**
  * A fragment representing a list of Items.
@@ -32,7 +30,7 @@ import java.util.ArrayList;
  * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
  * interface.
  */
-public class eventFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class EventFragment extends Fragment implements AbsListView.OnItemClickListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -54,11 +52,11 @@ public class eventFragment extends Fragment implements AbsListView.OnItemClickLi
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ArrayAdapter mAdapter;
+    private EventListViewAdapter mAdapter;
 
     // TODO: Rename and change types of parameters
-    public static eventFragment newInstance(String param1, String param2) {
-        eventFragment fragment = new eventFragment();
+    public static EventFragment newInstance(String param1, String param2) {
+        EventFragment fragment = new EventFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -70,7 +68,7 @@ public class eventFragment extends Fragment implements AbsListView.OnItemClickLi
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public eventFragment() {
+    public EventFragment() {
     }
 
     @Override
@@ -82,8 +80,10 @@ public class eventFragment extends Fragment implements AbsListView.OnItemClickLi
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                R.layout.event_list_item_layout, android.R.id.text1, DummyContent.ITEMS);
+        mAdapter = new EventListViewAdapter(getActivity(), null);
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(APIConstants.EventParseClassName);
+        query
     }
 
     @Override
@@ -123,7 +123,7 @@ public class eventFragment extends Fragment implements AbsListView.OnItemClickLi
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+//            mListener.onEventFragmentInteraction(DummyContent.ITEMS.get(position).id);
         }
     }
 
@@ -152,18 +152,20 @@ public class eventFragment extends Fragment implements AbsListView.OnItemClickLi
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(String id);
+        public void onEventFragmentInteraction(String id);
     }
 
     // Custom Adapter
 
-    private class EventListViewAdapter extends BaseAdapter {
+    private class EventListViewAdapter extends ArrayAdapter<List<ParseObject>> {
 
         private Context context;
         private List<ParseObject> objects;
+
         public EventListViewAdapter (Context context, List<ParseObject> objects) {
+            super(context, -1);
             this.context = context;
-            this.objects = objects;
+            this.objects = objects == null ? new ArrayList<ParseObject>() : objects;
         }
 
         @Override
@@ -173,18 +175,26 @@ public class eventFragment extends Fragment implements AbsListView.OnItemClickLi
 
         @Override
         public View getView (int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
+
+            if (convertView == null) {
+                LayoutInflater inflater = (android.view.LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.event_list_item_layout,parent);
+            }
+
+            ParseObject object = this.objects.get(position);
+            TextView eventNameTextView = (TextView)convertView.findViewById(R.id.eventNameTextView);
+            eventNameTextView.setText(((String)object.get(APIConstants.EventNameKey)));
+
+            TextView eventDateTextView = (TextView)convertView.findViewById(R.id.eventDateTextView);
+            eventDateTextView.setText("Fake Date");
+
+            TextView eventLocalTextView = (TextView)convertView.findViewById(R.id.eventLocationTextView);
+            eventLocalTextView.setText(((String)(object.get(APIConstants.EventLocationKey))));
+
+            TextView eventDescriptionTextView = (TextView)convertView.findViewById(R.id.eventDescriptionTextView);
+            eventDescriptionTextView.setText(((String)(object.get(APIConstants.EventContentKey))));
+
             return null;
-        }
-
-        @Override
-        public long getItemId (int position) {
-            return position;
-        }
-
-        @Override
-        public Object getItem (int position) {
-            return this.objects.get(position);
         }
     }
 
