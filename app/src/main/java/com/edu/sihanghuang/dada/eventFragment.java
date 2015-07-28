@@ -83,7 +83,7 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
         mAdapter = new EventListViewAdapter(getActivity(), null);
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery(APIConstants.EventParseClassName);
-        query
+//        query
     }
 
     @Override
