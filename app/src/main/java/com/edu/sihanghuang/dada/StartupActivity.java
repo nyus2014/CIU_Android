@@ -1,6 +1,12 @@
 package com.edu.sihanghuang.dada;
 
 import android.app.ActionBar;
+import android.content.Context;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.support.v4.app.FragmentActivity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
@@ -9,11 +15,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class StartupActivity extends FragmentActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LifestyleFragment.OnFragmentInteractionListener, EventFragment.OnFragmentInteractionListener {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, LifestyleFragment.OnFragmentInteractionListener, EventFragment.OnFragmentInteractionListener, LocationListener {
 
     private final int SideMenuRowAbout = 1;
     private final int SideMenuRowRate = 2;
@@ -21,6 +32,8 @@ public class StartupActivity extends FragmentActivity
     private final int SideMenuRowShare = 4;
     private final int SideMenuRowTermsAndPrivay = 5;
     private final int SideMenuRowLogOut = 6;
+    private final int LocationManagerUpdateMinTime = 1000;
+    private final int LocationManagerUpdateDistance = 1852;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -35,16 +48,12 @@ public class StartupActivity extends FragmentActivity
 
     private final String[] tabNames = {"Lifestyle", "Events", "Surprise"};
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private LocationManager mLocationManager;
+    private String mProvider;
+    private Location mLastLocation;
+    // Set up
 
-        setContentView(R.layout.activity_startup);
-
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
-
+    private void setUpViewPager() {
         mViewPager = (ViewPager)findViewById(R.id.pager);
         mViewPager.setAdapter(new TabAdapter(getSupportFragmentManager()));
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener(){
@@ -61,11 +70,18 @@ public class StartupActivity extends FragmentActivity
             public void onPageScrollStateChanged(int state) {
             }
         });
+    }
+
+    private void setUpNavigationDrawer() {
+        mNavigationDrawerFragment = (NavigationDrawerFragment)
+                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+    }
 
+    private void setUpTabs() {
         // Set up tabs
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -92,6 +108,84 @@ public class StartupActivity extends FragmentActivity
                             .setTabListener(tabListener));
         }
     }
+
+    private void setUpLocationManager() {
+        mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+        // Define the criteria how to select the locatioin provider -> use default
+        Criteria criteria = new Criteria();
+        mProvider = mLocationManager.getBestProvider(criteria, false);
+        mLastLocation = mLocationManager.getLastKnownLocation(mProvider);
+
+        if (mLastLocation != null) {
+            onLocationChanged(mLastLocation);
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_startup);
+        mTitle = getTitle();
+        setUpNavigationDrawer();
+        setUpViewPager();
+        setUpNavigationDrawer();
+        setUpTabs();
+        setUpLocationManager();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mLocationManager.requestLocationUpdates(mProvider, LocationManagerUpdateMinTime, LocationManagerUpdateDistance, this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mLocationManager.removeUpdates(this);
+    }
+
+    // Listener
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+        int lat = (int) (location.getLatitude());
+        int lng = (int) (location.getLongitude());
+        Log.i("latitude", String.valueOf(lat));
+        Log.i("longitude", String.valueOf(lng));
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        // TODO Auto-generated method stub
+        switch (status) {
+            case LocationProvider.OUT_OF_SERVICE:
+                break;
+            case LocationProvider.AVAILABLE:
+                break;
+            case LocationProvider.TEMPORARILY_UNAVAILABLE:
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        Toast.makeText(this, "Enabled new provider " + provider,
+                Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        Toast.makeText(this, "Disabled provider " + provider,
+                Toast.LENGTH_SHORT).show();
+    }
+
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
