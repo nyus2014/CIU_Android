@@ -20,9 +20,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-
 public class StartupActivity extends FragmentActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks, LifestyleFragment.OnFragmentInteractionListener, EventFragment.OnFragmentInteractionListener, LocationListener {
 
@@ -275,9 +272,9 @@ public class StartupActivity extends FragmentActivity
 
                 return lifestyle;
             } else {
-                EventFragment eventFragment = EventFragment.newInstance("a", "b");
+                EventFragment eventFragment1 = EventFragment.newInstance("a", "b");
 
-                return eventFragment;
+                return eventFragment1;
             }
         }
 

@@ -1,8 +1,15 @@
 package com.edu.sihanghuang.dada;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +18,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
-
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import java.util.ArrayList;
 import java.util.List;
 import android.content.Context;
-
-import com.edu.sihanghuang.dada.dummy.DummyContent;
-import com.parse.Parse;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -30,7 +35,7 @@ import com.parse.ParseQuery;
  * Activities containing this fragment MUST implement the {@link OnFragmentInteractionListener}
  * interface.
  */
-public class EventFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class EventFragment extends Fragment implements AbsListView.OnItemClickListener, LocationListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,7 +47,8 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-
+    private LocationManager mLocationManger;
+    private String mProvider;
     /**
      * The fragment's ListView/GridView.
      */
@@ -82,8 +88,45 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
 
         mAdapter = new EventListViewAdapter(getActivity(), null);
 
-        ParseQuery<ParseObject> query = ParseQuery.getQuery(APIConstants.EventParseClassName);
-//        query
+        mLocationManger = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+        // check if enabled and if not send user to the GSP settings
+        // Better solution would be to display a dialog and suggesting to
+        // go to the settings
+        if (!mLocationManger.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            showSettingsAlert();
+
+            return;
+        }
+
+        if (!mLocationManger.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            Log.e("", "network provider is disabled");
+            return;
+        }
+
+        // Define the criteria how to select the locatioin provider -> use default
+//        Criteria criteria = new Criteria();
+//        mProvider = mLocationManger.getBestProvider(criteria, false);
+        Location location = mLocationManger.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if (location == null) {
+            location = mLocationManger.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        }
+
+        if (location != null) {
+            pullDataFromServerAroundCenter(location);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mLocationManger.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 400, 1, this);
+        mLocationManger.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1, this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mLocationManger.removeUpdates(this);
     }
 
     @Override
@@ -117,6 +160,72 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
         super.onDetach();
         mListener = null;
     }
+
+    // Helper
+
+    /**
+     * Function to show settings alert dialog
+     * */
+    public void showSettingsAlert(){
+        final Context mContext = getActivity();
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+
+        // Setting Dialog Title
+        alertDialog.setTitle("GPS is settings");
+
+        // Setting Dialog Message
+        alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
+
+        // Setting Icon to Dialog
+        //alertDialog.setIcon(R.drawable.delete);
+
+        // On pressing Settings button
+        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog,int which) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                mContext.startActivity(intent);
+            }
+        });
+
+        // on pressing cancel button
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
+    }
+
+    private void pullDataFromServerAroundCenter(Location location) {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(APIConstants.EventParseClassName);
+//        query
+    }
+
+    // Listener
+
+    @Override
+    public void onLocationChanged(Location location) {
+        int lat = (int) (location.getLatitude());
+        int lng = (int) (location.getLongitude());
+        String string = "lat is " + Integer.toString(lat) + ", " + "lng is " + Integer.toString(lng);
+        Log.i("", string);
+    }
+
+    public void onStatusChanged (String provider, int status, Bundle extras) {
+
+    }
+
+    public void onProviderDisabled (String provider) {
+        Log.e("", "location provider disabled");
+    }
+
+    public void onProviderEnabled (String provider) {
+
+    }
+
+    // Actions
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
