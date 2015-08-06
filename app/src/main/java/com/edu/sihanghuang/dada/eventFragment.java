@@ -208,6 +208,11 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
 
     private void pullDataFromServerAroundCenter(Location location, int radius) {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(APIConstants.EventParseClassName);
+
+    }
+
+    private void addBoundingCoordinatesConstraintForQuery(ParseQuery query, Location location) {
+            
     }
 
     // Listener
