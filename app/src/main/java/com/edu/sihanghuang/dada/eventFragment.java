@@ -106,7 +106,7 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
         Location location = getLastLocation();
 
         if (location != null) {
-            pullDataFromServerAroundCenter(location);
+            pullDataFromServerAroundCenter(location, 30);
         }
     }
 
@@ -206,9 +206,8 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
         mLocationManger.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1, this);
     }
 
-    private void pullDataFromServerAroundCenter(Location location) {
+    private void pullDataFromServerAroundCenter(Location location, int radius) {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(APIConstants.EventParseClassName);
-//        query
     }
 
     // Listener
