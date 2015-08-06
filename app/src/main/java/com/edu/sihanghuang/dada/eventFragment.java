@@ -103,13 +103,7 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
             return;
         }
 
-        // Define the criteria how to select the locatioin provider -> use default
-//        Criteria criteria = new Criteria();
-//        mProvider = mLocationManger.getBestProvider(criteria, false);
-        Location location = mLocationManger.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        if (location == null) {
-            location = mLocationManger.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        }
+        Location location = getLastLocation();
 
         if (location != null) {
             pullDataFromServerAroundCenter(location);
@@ -119,8 +113,7 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
     @Override
     public void onResume() {
         super.onResume();
-        mLocationManger.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 400, 1, this);
-        mLocationManger.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1, this);
+        requestLocationUpdates();
     }
 
     @Override
@@ -196,6 +189,21 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
 
         // Showing Alert Message
         alertDialog.show();
+    }
+
+    private Location getLastLocation() {
+        Location location = mLocationManger.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+        if (location == null) {
+            location = mLocationManger.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        }
+
+        return location;
+    }
+
+    private void requestLocationUpdates() {
+        mLocationManger.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 400, 1, this);
+        mLocationManger.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1, this);
     }
 
     private void pullDataFromServerAroundCenter(Location location) {
