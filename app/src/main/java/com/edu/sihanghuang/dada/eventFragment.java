@@ -23,8 +23,13 @@ import android.content.DialogInterface;
 import java.util.ArrayList;
 import java.util.List;
 import android.content.Context;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+
+import org.w3c.dom.Text;
 
 /**
  * A fragment representing a list of Items.
@@ -106,6 +111,18 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
         Location location = getLastLocation();
 
         if (location != null) {
+            Log.i("", "Location is not null");
+            pullDataFromServerAroundCenter(location, 30);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Location location = getLastLocation();
+
+        if (location != null) {
+            Log.i("", "Location is not null");
             pullDataFromServerAroundCenter(location, 30);
         }
     }
@@ -208,7 +225,18 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
 
     private void pullDataFromServerAroundCenter(Location location, int radius) {
         ParseQuery<ParseObject> query = ParseQuery.getQuery(APIConstants.EventParseClassName);
-
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> list, ParseException e) {
+                Log.i("", "Finished API call");
+                if (e != null) {
+                    Log.e("", "Faild to retrieve events");
+                } else {
+                    mAdapter.addAll(list);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 
     private void addBoundingCoordinatesConstraintForQuery(ParseQuery query, Location location) {
@@ -283,6 +311,13 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
         private Context context;
         private List<ParseObject> objects;
 
+        class ViewHolder {
+            public TextView eventNameTextView;
+            public TextView eventDateTextView;
+            public TextView eventLocalTextView;
+            public TextView eventDescriptionTextView;
+        }
+
         public EventListViewAdapter (Context context, List<ParseObject> objects) {
             super(context, -1);
             this.context = context;
@@ -294,28 +329,40 @@ public class EventFragment extends Fragment implements AbsListView.OnItemClickLi
             return this.objects.size();
         }
 
+        public void add(ParseObject parseObject) {
+            this.objects.add(parseObject);
+        }
+
+        public void addAll(List<ParseObject> objects) {
+            this.objects.addAll(objects);
+        }
+
         @Override
         public View getView (int position, View convertView, ViewGroup parent) {
 
-            if (convertView == null) {
+            View rowView = convertView;
+
+            if (rowView== null) {
                 LayoutInflater inflater = (android.view.LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.event_list_item_layout,parent);
+                rowView= inflater.inflate(R.layout.event_list_item_layout, null);
+
+                //
+                ViewHolder viewHolder = new ViewHolder();
+                viewHolder.eventNameTextView = (TextView)rowView.findViewById(R.id.eventNameTextView);
+                viewHolder.eventDateTextView = (TextView)rowView.findViewById(R.id.eventDateTextView);
+                viewHolder.eventLocalTextView = (TextView)rowView.findViewById(R.id.eventLocationTextView);
+                viewHolder.eventDescriptionTextView = (TextView)rowView.findViewById(R.id.eventDescriptionTextView);
+                rowView.setTag(viewHolder);
             }
 
             ParseObject object = this.objects.get(position);
-            TextView eventNameTextView = (TextView)convertView.findViewById(R.id.eventNameTextView);
-            eventNameTextView.setText(((String)object.get(APIConstants.EventNameKey)));
+            ViewHolder viewHolder = (ViewHolder)rowView.getTag();
+            viewHolder.eventNameTextView.setText(((String)object.get(APIConstants.EventNameKey)));
+            viewHolder.eventDateTextView.setText("Fake Date");
+            viewHolder.eventLocalTextView.setText(((String)(object.get(APIConstants.EventLocationKey))));
+            viewHolder.eventDescriptionTextView.setText(((String)(object.get(APIConstants.EventContentKey))));
 
-            TextView eventDateTextView = (TextView)convertView.findViewById(R.id.eventDateTextView);
-            eventDateTextView.setText("Fake Date");
-
-            TextView eventLocalTextView = (TextView)convertView.findViewById(R.id.eventLocationTextView);
-            eventLocalTextView.setText(((String)(object.get(APIConstants.EventLocationKey))));
-
-            TextView eventDescriptionTextView = (TextView)convertView.findViewById(R.id.eventDescriptionTextView);
-            eventDescriptionTextView.setText(((String)(object.get(APIConstants.EventContentKey))));
-
-            return null;
+            return rowView;
         }
     }
 
