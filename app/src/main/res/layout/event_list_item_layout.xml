@@ -3,6 +3,7 @@
     android:layout_width="match_parent" android:layout_height="wrap_content">
     <TextView
         android:id = "@+id/eventNameTextView"
+        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -13,21 +14,18 @@
         android:id = "@+id/eventDateTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/eventNameTextView"
-        android:layout_marginTop="10dp"
-        android:layout_alignLeft="@+id/eventNameTextView"/>
+        android:layout_below= "@+id/eventNameTextView"
+        android:paddingLeft="20dp"/>
     <TextView
         android:id = "@+id/eventLocationTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/eventDateTextView"
-        android:layout_marginTop="10dp"
-        android:layout_alignLeft="@+id/eventDateTextView"/>
+        android:layout_below="@+id/eventDateTextView"
+        android:paddingLeft="20dp"/>
     <TextView
         android:id = "@+id/eventDescriptionTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/eventLocationTextView"
-        android:layout_marginTop="10dp"
-        android:layout_alignLeft="@+id/eventLocationTextView"/>
+        android:layout_below="@+id/eventLocationTextView"
+        android:paddingLeft="20dp"/>
 </RelativeLayout>
